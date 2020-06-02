@@ -26,21 +26,25 @@ class Job:
 
 
 def retrieve_jobs():
+    jobs = []
+
     page = requests.get(URL + '&imp=1')
     soup = BeautifulSoup(page.text, 'html.parser')
-    my_divs = soup.findAll("table", {"class": "hide-border-hide-padding"})
+    job_divs = soup.findAll("table", {"class": "hide-border-hide-padding"})
+    for job_div in job_divs:
+        company_name = job_div.find("strong", {"itemprop": "title"}).get_text()
+        street_address = job_div.find("li", {"itemprop": "street-address"}).get_text().strip()
+        locality = job_div.find("li", {"itemprop": "locality"}).get_text().strip()
+        zip_code = job_div.find("li", {"itemprop": "region"}).get_text().strip()
+        telephone = job_div.find("li", {"itemprop": "telephone"}).get_text().strip().replace('Téléphone : ', '')
+        company_size = job_div.find("li", {"itemprop": "interactionCount"}).get_text().strip()
+        company_type = job_div.find(text=re.compile("\(SCIAN")).strip()
 
-    company_name = my_divs[0].find("strong", {"itemprop": "title"}).get_text()
-    street_address = my_divs[0].find("li", {"itemprop": "street-address"}).get_text().strip()
-    locality = my_divs[0].find("li", {"itemprop": "locality"}).get_text().strip()
-    zip_code = my_divs[0].find("li", {"itemprop": "region"}).get_text().strip()
-    telephone = my_divs[0].find("li", {"itemprop": "telephone"}).get_text().strip().replace('Téléphone : ', '')
-    company_size = my_divs[0].find("li", {"itemprop": "interactionCount"}).get_text().strip()
-    company_type = my_divs[0].find(text=re.compile("\(SCIAN")).strip()
+        job = Job(company_name, street_address, locality, zip_code, telephone, company_size, company_type)
 
-    job = Job(company_name, street_address, locality, zip_code, telephone, company_size, company_type)
+        jobs.append(job)
 
-    return job
+    return jobs
 
 
 if __name__ == "__main__":
