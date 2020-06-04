@@ -25,10 +25,14 @@ class Job:
         self.company_type = company_type
 
 
-def retrieve_jobs():
+def get_url_for_page(page_number):
+    return f"http://imt.emploiquebec.gouv.qc.ca/mtg/inter/noncache/contenu/asp/ice622_resultrechr_01.asp?entpage={page_number}&entScroll=0&entpagefav=1&empMaxEnt=9999999999999&PT4=54&entrfav=False&PT3=10&entTriFav=01&lang=FRAN&Porte=4&cregn=QC&PT1=8&regnp4=08&empMinEnt=5&PT2=21&fbclid=IwAR0p0wHdCKRACf85lEX0HpR%5F5U0U12%2Dw1ZOnjAzIQTD0KoOJohLe3AGz6DQ&entTri=01&imp=1"
+
+
+def retrieve_jobs(num_of_pages):
     jobs = []
 
-    page = requests.get(URL + '&imp=1')
+    page = requests.get(get_url_for_page(1))
     soup = BeautifulSoup(page.text, 'html.parser')
     job_divs = soup.findAll("table", {"class": "hide-border-hide-padding"})
     for job_div in job_divs:
@@ -51,4 +55,4 @@ if __name__ == "__main__":
     # count the number of webpage
     num_of_pages = calculate_number_of_pages()
 
-    retrieve_jobs()
+    retrieve_jobs(num_of_pages)
