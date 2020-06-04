@@ -29,7 +29,8 @@ def retrieve_jobs(num_of_pages):
     jobs = []
 
     for x in range(num_of_pages):
-        page = requests.get(get_url_for_page(x + 1))
+        page_number = x + 1
+        page = requests.get(get_url_for_page(page_number))
         soup = BeautifulSoup(page.text, 'html.parser')
         job_divs = soup.findAll("table", {"class": "hide-border-hide-padding"})
 
@@ -45,6 +46,7 @@ def retrieve_jobs(num_of_pages):
             job = Job(company_name, street_address, locality, zip_code, telephone, company_size, company_type)
 
             jobs.append(job)
+        log_download_progression(page_number, num_of_pages)
 
     return jobs
 
@@ -53,8 +55,13 @@ def get_url_for_page(page_number):
     return f"http://imt.emploiquebec.gouv.qc.ca/mtg/inter/noncache/contenu/asp/ice622_resultrechr_01.asp?entpage={page_number}&entScroll=0&entpagefav=1&empMaxEnt=9999999999999&PT4=54&entrfav=False&PT3=10&entTriFav=01&lang=FRAN&Porte=4&cregn=QC&PT1=8&regnp4=08&empMinEnt=5&PT2=21&fbclid=IwAR0p0wHdCKRACf85lEX0HpR%5F5U0U12%2Dw1ZOnjAzIQTD0KoOJohLe3AGz6DQ&entTri=01&imp=1"
 
 
-if __name__ == "__main__":
-    # count the number of webpage
-    num_of_pages = calculate_number_of_pages()
+def log_download_progression(page_number, num_of_pages):
+    page = 'page'
+    if page_number > 1:
+        page = 'pages'
+    print(f"📄 {page_number} {page} saved out of {num_of_pages}.")
 
+
+if __name__ == "__main__":
+    num_of_pages = calculate_number_of_pages()
     retrieve_jobs(num_of_pages)
