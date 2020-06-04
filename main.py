@@ -1,3 +1,6 @@
+import csv
+from datetime import datetime
+
 import requests
 import math
 from bs4 import BeautifulSoup
@@ -24,31 +27,41 @@ class Job:
         self.company_size = company_size
         self.company_type = company_type
 
+    def __iter__(self):
+        return iter(
+            [self.company_name, self.street_address, self.locality, self.zip_code, self.telephone, self.company_size,
+             self.company_type])
+
+    @staticmethod
+    def get_table_title():
+        return ['company name', 'street address', 'locality', 'zip code', 'telephone', 'company size',
+                'company type']
+
 
 def retrieve_jobs(num_of_pages):
-    jobs = []
+    date = datetime.today().strftime('%Y-%m-%d')
+    with open(f"emploi_quebec_{date}.csv", 'w') as csv_file:
+        writer = csv.writer(csv_file, delimiter=',')
+        writer.writerow(Job.get_table_title())
 
-    for x in range(num_of_pages):
-        page_number = x + 1
-        page = requests.get(get_url_for_page(page_number))
-        soup = BeautifulSoup(page.text, 'html.parser')
-        job_divs = soup.findAll("table", {"class": "hide-border-hide-padding"})
+        for x in range(num_of_pages):
+            page_number = x + 1
+            page = requests.get(get_url_for_page(page_number))
+            soup = BeautifulSoup(page.text, 'html.parser')
+            job_divs = soup.findAll("table", {"class": "hide-border-hide-padding"})
 
-        for job_div in job_divs:
-            company_name = job_div.find("strong", {"itemprop": "title"}).get_text()
-            street_address = job_div.find("li", {"itemprop": "street-address"}).get_text().strip()
-            locality = job_div.find("li", {"itemprop": "locality"}).get_text().strip()
-            zip_code = job_div.find("li", {"itemprop": "region"}).get_text().strip()
-            telephone = job_div.find("li", {"itemprop": "telephone"}).get_text().strip().replace('Téléphone : ', '')
-            company_size = job_div.find("li", {"itemprop": "interactionCount"}).get_text().strip()
-            company_type = job_div.find(text=re.compile("\(SCIAN")).strip()
+            for job_div in job_divs:
+                company_name = job_div.find("strong", {"itemprop": "title"}).get_text()
+                street_address = job_div.find("li", {"itemprop": "street-address"}).get_text().strip()
+                locality = job_div.find("li", {"itemprop": "locality"}).get_text().strip()
+                zip_code = job_div.find("li", {"itemprop": "region"}).get_text().strip()
+                telephone = job_div.find("li", {"itemprop": "telephone"}).get_text().strip().replace('Téléphone : ', '')
+                company_size = job_div.find("li", {"itemprop": "interactionCount"}).get_text().strip()
+                company_type = job_div.find(text=re.compile("\(SCIAN")).strip()
 
-            job = Job(company_name, street_address, locality, zip_code, telephone, company_size, company_type)
-
-            jobs.append(job)
-        log_download_progression(page_number, num_of_pages)
-
-    return jobs
+                job = Job(company_name, street_address, locality, zip_code, telephone, company_size, company_type)
+                writer.writerow(list(job))
+            log_download_progression(page_number, num_of_pages)
 
 
 def get_url_for_page(page_number):
