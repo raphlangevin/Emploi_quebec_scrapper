@@ -40,7 +40,7 @@ class Job:
 
 def retrieve_jobs(num_of_pages):
     date = datetime.today().strftime('%Y-%m-%d')
-    with open(f"emploi_quebec_{date}.csv", 'w', encoding='utf-8') as csv_file:
+    with open(f"report/emploi_quebec_{date}.csv", 'w', newline='', encoding="utf-8") as csv_file:
         writer = csv.writer(csv_file, delimiter=',')
         writer.writerow(Job.get_table_title())
 
@@ -48,21 +48,27 @@ def retrieve_jobs(num_of_pages):
             page_number = x + 1
             page = requests.get(get_url_for_page(page_number))
             soup = BeautifulSoup(page.text, 'html.parser')
+            soup.encode("utf-8")
+
             job_divs = soup.findAll("table", {"class": "hide-border-hide-padding"})
 
             for job_div in job_divs:
-                company_name = job_div.find("strong", {"itemprop": "title"}).get_text()
-                street_address = job_div.find("li", {"itemprop": "street-address"}).get_text().strip()
-                locality = job_div.find("li", {"itemprop": "locality"}).get_text().strip()
-                zip_code = job_div.find("li", {"itemprop": "region"}).get_text().strip()
-                telephone = job_div.find("li", {"itemprop": "telephone"}).get_text().strip().replace('Téléphone : ', '')
-                company_size = get_company_size(job_div)
-                company_type = job_div.find(text=re.compile("\(SCIAN")).strip()
-
-                job = Job(company_name, street_address, locality, zip_code, telephone, company_size, company_type)
-                writer.writerow(list(job))
+                job = get_job(job_div)
+                writer.writerow(job)
 
             log_download_progression(page_number, num_of_pages)
+
+
+def get_job(job_div):
+    company_name = job_div.find("strong", {"itemprop": "title"}).get_text()
+    street_address = job_div.find("li", {"itemprop": "street-address"}).get_text().strip()
+    locality = job_div.find("li", {"itemprop": "locality"}).get_text().strip()
+    zip_code = job_div.find("li", {"itemprop": "region"}).get_text().strip()
+    telephone = job_div.find("li", {"itemprop": "telephone"}).get_text().strip().replace('Téléphone : ', '')
+    company_size = get_company_size(job_div)
+    company_type = job_div.find(text=re.compile("\(SCIAN")).strip()
+    job = Job(company_name, street_address, locality, zip_code, telephone, company_size, company_type)
+    return job
 
 
 def get_company_size(job_div):
