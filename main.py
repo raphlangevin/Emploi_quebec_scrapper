@@ -40,7 +40,7 @@ class Job:
 
 def retrieve_jobs(num_of_pages):
     date = datetime.today().strftime('%Y-%m-%d')
-    with open(f"emploi_quebec_{date}.csv", 'w') as csv_file:
+    with open(f"emploi_quebec_{date}.csv", 'w', encoding='utf-8') as csv_file:
         writer = csv.writer(csv_file, delimiter=',')
         writer.writerow(Job.get_table_title())
 
@@ -56,12 +56,22 @@ def retrieve_jobs(num_of_pages):
                 locality = job_div.find("li", {"itemprop": "locality"}).get_text().strip()
                 zip_code = job_div.find("li", {"itemprop": "region"}).get_text().strip()
                 telephone = job_div.find("li", {"itemprop": "telephone"}).get_text().strip().replace('Téléphone : ', '')
-                company_size = job_div.find("li", {"itemprop": "interactionCount"}).get_text().strip()
+                company_size = get_company_size(job_div)
                 company_type = job_div.find(text=re.compile("\(SCIAN")).strip()
 
                 job = Job(company_name, street_address, locality, zip_code, telephone, company_size, company_type)
                 writer.writerow(list(job))
+
             log_download_progression(page_number, num_of_pages)
+
+
+def get_company_size(job_div):
+    if job_div.find("li",
+                    {"itemprop": "interactionCount"}) is not None:  # The html is not consistent across the website
+        company_size = job_div.find("li", {"itemprop": "interactionCount"}).get_text().strip()
+    else:
+        company_size = job_div.find("li", {"itemprop": "employees"}).get_text().strip()
+    return company_size
 
 
 def get_url_for_page(page_number):
