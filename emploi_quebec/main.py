@@ -7,6 +7,8 @@ from bs4 import BeautifulSoup
 import re
 from lxml import html
 
+from log_util import log_download_progression
+
 URL = 'http://imt.emploiquebec.gouv.qc.ca/mtg/inter/noncache/contenu/asp/ice622_resultrechr_01.asp?entScroll=0&entpagefav=1&empMaxEnt=9999999999999&PT4=54&PT3=10&entTriFav=01&lang=FRAN&Porte=4&cregn=QC&PT1=8&regnp4=08&empMinEnt=5&PT2=21&fbclid=IwAR0p0wHdCKRACf85lEX0HpR%5F5U0U12%2Dw1ZOnjAzIQTD0KoOJohLe3AGz6DQ'
 
 
@@ -82,13 +84,6 @@ def get_company_size(job_div):
 
 def get_url_for_page(page_number):
     return f"http://imt.emploiquebec.gouv.qc.ca/mtg/inter/noncache/contenu/asp/ice622_resultrechr_01.asp?entpage={page_number}&entScroll=0&entpagefav=1&empMaxEnt=9999999999999&PT4=54&entrfav=False&PT3=10&entTriFav=01&lang=FRAN&Porte=4&cregn=QC&PT1=8&regnp4=08&empMinEnt=5&PT2=21&fbclid=IwAR0p0wHdCKRACf85lEX0HpR%5F5U0U12%2Dw1ZOnjAzIQTD0KoOJohLe3AGz6DQ&entTri=01&imp=1"
-
-
-def log_download_progression(page_number, num_of_pages):
-    page = 'page'
-    if page_number > 1:
-        page = 'pages'
-    print(f"📄 {page_number} {page} saved out of {num_of_pages}.")
 
 
 if __name__ == "__main__":
