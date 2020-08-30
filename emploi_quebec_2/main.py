@@ -1,5 +1,6 @@
 import csv
 import math
+import os
 from datetime import datetime
 import re
 from dataclasses import dataclass
@@ -8,6 +9,8 @@ import requests
 from bs4 import BeautifulSoup
 
 from log_util import log_download_progression
+
+REPORT_PATH = 'report'
 
 
 @dataclass
@@ -57,7 +60,7 @@ def get_all_jobs(number_of_pages):
     for page_number in range(number_of_pages):
         page_number = page_number + 1
 
-        page = requests.get(get_url(page_number), timeout=5)
+        page = requests.get(get_url(page_number), timeout=15)
         soup = BeautifulSoup(page.text, 'html.parser')
         table_rows = soup.find("table", {"class": "donnees"}).find("tbody").findAll("tr")
 
@@ -72,7 +75,9 @@ def get_all_jobs(number_of_pages):
 
 def save_job_offers(job_offers):
     date = datetime.today().strftime('%Y-%m-%d')
-    with open(f"report/emploi_quebec_{date}.csv", 'w', newline='', encoding="utf-8") as csv_file:
+    if not os.path.exists(REPORT_PATH):
+        os.makedirs(REPORT_PATH)
+    with open(f"{REPORT_PATH}/emploi_quebec_{date}.csv", 'w+', newline='', encoding="utf-8") as csv_file:
         writer = csv.writer(csv_file, delimiter=',')
 
         writer.writerow(
@@ -85,5 +90,5 @@ def save_job_offers(job_offers):
 
 if __name__ == "__main__":
     number_of_pages = calculate_number_of_pages()
-    job_offers = get_all_jobs(number_of_pages)
+    job_offers = get_all_jobs(5)
     save_job_offers(job_offers)
