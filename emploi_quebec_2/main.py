@@ -90,5 +90,5 @@ def save_job_offers(job_offers):
 
 if __name__ == "__main__":
     number_of_pages = calculate_number_of_pages()
-    job_offers = get_all_jobs(5)
+    job_offers = get_all_jobs(number_of_pages)
     save_job_offers(job_offers)
