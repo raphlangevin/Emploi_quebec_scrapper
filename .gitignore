@@ -2,3 +2,5 @@
 venv/*
 *.csv
 __pycache__
+emploi_quebec_2/client_secrets.json
+

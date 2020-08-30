@@ -1,16 +1,13 @@
-import csv
 import math
-import os
-from datetime import datetime
+import math
 import re
 from dataclasses import dataclass
 
 import requests
 from bs4 import BeautifulSoup
 
+from emploi_quebec_2.job_saver import get_job_saver
 from log_util import log_download_progression
-
-REPORT_PATH = 'report'
 
 
 @dataclass
@@ -73,22 +70,8 @@ def get_all_jobs(number_of_pages):
     return job_offers
 
 
-def save_job_offers(job_offers):
-    date = datetime.today().strftime('%Y-%m-%d')
-    if not os.path.exists(REPORT_PATH):
-        os.makedirs(REPORT_PATH)
-    with open(f"{REPORT_PATH}/emploi_quebec_{date}.csv", 'w+', newline='', encoding="utf-8") as csv_file:
-        writer = csv.writer(csv_file, delimiter=',')
-
-        writer.writerow(
-            ['job_offer_number', 'job_name', 'company', 'number_of_job', 'level_of_education', 'years_of_experience',
-             'location'])
-
-        for job_offer in job_offers:
-            writer.writerow(job_offer)
-
-
 if __name__ == "__main__":
     number_of_pages = calculate_number_of_pages()
     job_offers = get_all_jobs(number_of_pages)
-    save_job_offers(job_offers)
+    job_saver = get_job_saver('googleDrive')
+    job_saver.save_job_offers(job_offers)
