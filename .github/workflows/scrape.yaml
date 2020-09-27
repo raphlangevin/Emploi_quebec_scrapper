@@ -1,6 +1,8 @@
 name: Python package
 
-on: [push]
+on:
+  schedule:
+    - cron: "0 2 17 1/1 * ? *"
 
 jobs:
   build:
