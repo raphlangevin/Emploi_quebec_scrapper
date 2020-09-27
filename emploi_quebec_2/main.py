@@ -6,7 +6,7 @@ from dataclasses import dataclass
 import requests
 from bs4 import BeautifulSoup
 
-from emploi_quebec_2.job_saver import get_job_saver
+from emploi_quebec_2.job_saver import get_job_saver, JobSaverType
 from log_util import log_download_progression
 
 
@@ -73,5 +73,5 @@ def get_all_jobs(number_of_pages):
 if __name__ == "__main__":
     number_of_pages = calculate_number_of_pages()
     job_offers = get_all_jobs(number_of_pages)
-    job_saver = get_job_saver('googleDrive')
+    job_saver = get_job_saver(JobSaverType.BOX)
     job_saver.save_job_offers(job_offers)
